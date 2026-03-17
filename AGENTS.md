@@ -171,7 +171,7 @@ npm ci
 npm start
 
 # Production build
-npm run build
+npm run build:production
 # Output → dist/ (this is what gets COPYd into the Docker image)
 
 # Lint
