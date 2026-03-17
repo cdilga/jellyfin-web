@@ -9,13 +9,17 @@ import 'styles/flexstyles.scss';
 import './searchfields.scss';
 
 interface SearchFieldsProps {
-    query: string,
-    onSearch?: (query: string) => void
+    query: string;
+    onSearch?: (query: string) => void;
+    showPeople: boolean;
+    onTogglePeople: () => void;
 }
 
 const SearchFields: FC<SearchFieldsProps> = ({
     onSearch = () => { /* no-op */ },
-    query
+    query,
+    showPeople,
+    onTogglePeople
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,7 +36,7 @@ const SearchFields: FC<SearchFieldsProps> = ({
 
     const onChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         onSearch(e.target.value);
-    }, [ onSearch ]);
+    }, [onSearch]);
 
     return (
         <div className='padded-left padded-right searchFields'>
@@ -57,6 +61,15 @@ const SearchFields: FC<SearchFieldsProps> = ({
                         onChange={onChange}
                     />
                 </div>
+                <button
+                    type='button'
+                    className={`searchfields-people-toggle emby-button ${showPeople ? 'searchfields-people-toggle--active' : ''}`}
+                    title={globalize.translate(showPeople ? 'HidePeople' : 'ShowPeople')}
+                    onClick={onTogglePeople}
+                    style={{ marginLeft: '8px', padding: '4px 10px', fontSize: '0.85em', opacity: showPeople ? 1 : 0.5 }}
+                >
+                    <span className='material-icons person' aria-hidden='true' style={{ fontSize: '1.2em', verticalAlign: 'middle' }} />
+                </button>
             </div>
             {layoutManager.tv && !browser.tv
                 && <AlphaPicker onAlphaPicked={onAlphaPicked} />

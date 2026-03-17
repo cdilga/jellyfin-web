@@ -1,0 +1,40 @@
+.searchDenseGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    padding: 0 1em;
+}
+
+.searchDenseGrid-section {
+    grid-column: 1 / -1;
+    margin: 12px 0 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.searchDenseGrid-section:first-child {
+    margin-top: 4px;
+}
+
+/* Make cards smaller in the dense grid */
+.searchDenseGrid .card {
+    font-size: 0.8em;
+}
+
+.searchDenseGrid .cardText {
+    font-size: 0.9em;
+}
+
+/* Infinite scroll sentinel */
+.searchDenseGrid-sentinel {
+    grid-column: 1 / -1;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85em;
+}

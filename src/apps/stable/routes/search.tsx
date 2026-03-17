@@ -1,5 +1,5 @@
 import type { CollectionType } from '@jellyfin/sdk/lib/generated-client/models/collection-type';
-import React, { type FC } from 'react';
+import React, { type FC, useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDebounceValue } from 'usehooks-ts';
 
@@ -13,13 +13,35 @@ import globalize from 'lib/globalize';
 const COLLECTION_TYPE_PARAM = 'collectionType';
 const PARENT_ID_PARAM = 'parentId';
 const QUERY_PARAM = 'query';
+const SHOW_PEOPLE_KEY = 'search.showPeople';
+
+function getInitialShowPeople(): boolean {
+    try {
+        return localStorage.getItem(SHOW_PEOPLE_KEY) === 'true';
+    } catch {
+        return false;
+    }
+}
 
 const Search: FC = () => {
     const [searchParams] = useSearchParams();
     const parentIdQuery = searchParams.get(PARENT_ID_PARAM) || undefined;
     const collectionTypeQuery = (searchParams.get(COLLECTION_TYPE_PARAM) || undefined) as CollectionType | undefined;
-    const [ query, setQuery ] = useSearchParam(QUERY_PARAM);
+    const [query, setQuery] = useSearchParam(QUERY_PARAM);
     const [debouncedQuery] = useDebounceValue(query, 500);
+    const [showPeople, setShowPeople] = useState(getInitialShowPeople);
+
+    const onTogglePeople = useCallback(() => {
+        setShowPeople(prev => {
+            const next = !prev;
+            try {
+                localStorage.setItem(SHOW_PEOPLE_KEY, String(next));
+            } catch {
+                // ignore storage errors
+            }
+            return next;
+        });
+    }, []);
 
     return (
         <Page
@@ -27,7 +49,12 @@ const Search: FC = () => {
             title={globalize.translate('Search')}
             className='mainAnimatedPage libraryPage allLibraryPage noSecondaryNavPage'
         >
-            <SearchFields query={query} onSearch={setQuery} />
+            <SearchFields
+                query={query}
+                onSearch={setQuery}
+                showPeople={showPeople}
+                onTogglePeople={onTogglePeople}
+            />
             {!debouncedQuery ? (
                 <SearchSuggestions
                     parentId={parentIdQuery}
@@ -37,6 +64,7 @@ const Search: FC = () => {
                     parentId={parentIdQuery}
                     collectionType={collectionTypeQuery}
                     query={debouncedQuery}
+                    showPeople={showPeople}
                 />
             )}
         </Page>

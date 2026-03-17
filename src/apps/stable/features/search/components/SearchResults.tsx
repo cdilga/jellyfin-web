@@ -2,25 +2,26 @@ import React, { type FC } from 'react';
 import { useSearchItems } from '../api/useSearchItems';
 import globalize from 'lib/globalize';
 import Loading from 'components/loading/LoadingComponent';
-import SearchResultsRow from './SearchResultsRow';
-import { CardShape } from 'utils/card';
+import SearchDenseGrid from './SearchDenseGrid';
 import { CollectionType } from '@jellyfin/sdk/lib/generated-client/models/collection-type';
-import { Section } from '../types';
 import { Link } from 'react-router-dom';
 
 interface SearchResultsProps {
     parentId?: string;
     collectionType?: CollectionType;
     query?: string;
+    showPeople: boolean;
 }
 
 /*
- * React component to display search result rows for global search and library view search
+ * React component to display search result rows for global search and library view search.
+ * Uses a dense CSS grid layout with progressive rendering (infinite scroll).
  */
 const SearchResults: FC<SearchResultsProps> = ({
     parentId,
     collectionType,
-    query
+    query,
+    showPeople
 }) => {
     const { data, isPending } = useSearchItems(parentId, collectionType, query?.trim());
 
@@ -42,28 +43,12 @@ const SearchResults: FC<SearchResultsProps> = ({
         );
     }
 
-    const renderSection = (section: Section, index: number) => {
-        return (
-            <SearchResultsRow
-                key={`${section.title}-${index}`}
-                title={globalize.translate(section.title)}
-                items={section.items}
-                cardOptions={{
-                    shape: CardShape.AutoOverflow,
-                    scalable: true,
-                    showTitle: true,
-                    overlayText: false,
-                    centerText: true,
-                    allowBottomPadding: false,
-                    ...section.cardOptions
-                }}
-            />
-        );
-    };
-
     return (
-        <div className={'searchResults padded-top padded-bottom-page'}>
-            {data.map((section, index) => renderSection(section, index))}
+        <div className='padded-top padded-bottom-page'>
+            <SearchDenseGrid
+                sections={data}
+                showPeople={showPeople}
+            />
         </div>
     );
 };

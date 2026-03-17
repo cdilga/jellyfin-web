@@ -1,10 +1,11 @@
-import React, { type FC } from 'react';
+import React, { type FC, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import classNames from 'classnames';
 import useIndicator from 'components/indicators/useIndicator';
 import RefreshIndicator from 'elements/emby-itemrefreshindicator/RefreshIndicator';
 import Media from '../../common/Media';
 import CardInnerFooter from './CardInnerFooter';
+import { useChapterImageCycling } from './useChapterImageCycling';
 
 import { ItemKind } from 'types/base/models/item-kind';
 import type { ItemDto } from 'types/base/models/item-dto';
@@ -30,14 +31,29 @@ const CardImageContainer: FC<CardImageContainerProps> = ({
     forceName
 }) => {
     const indicator = useIndicator(item);
+    const { activeUrl, startCycling, stopCycling, hasChapters } = useChapterImageCycling(item, imgUrl);
+
+    const handleMouseEnter = useCallback(() => {
+        if (hasChapters) startCycling();
+    }, [hasChapters, startCycling]);
+
+    const handleMouseLeave = useCallback(() => {
+        stopCycling();
+    }, [stopCycling]);
+
     const cardImageClass = classNames(
         'cardImageContainer',
         { coveredImage: coveredImage },
-        { 'coveredImage-contain': coveredImage && item.Type === ItemKind.TvChannel }
+        { 'coveredImage-contain': coveredImage && item.Type === ItemKind.TvChannel },
+        { 'cardImageContainer--cycling': hasChapters }
     );
 
     return (
-        <div className={cardImageClass}>
+        <div
+            className={cardImageClass}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
             {cardOptions.disableIndicators !== true && (
                 <Box className='indicators'>
                     {indicator.getMediaSourceIndicator()}
@@ -61,7 +77,7 @@ const CardImageContainer: FC<CardImageContainerProps> = ({
                 </Box>
             )}
 
-            <Media item={item} imgUrl={imgUrl} blurhash={blurhash} imageType={cardOptions.imageType} />
+            <Media item={item} imgUrl={activeUrl} blurhash={blurhash} imageType={cardOptions.imageType} />
 
             {overlayText && (
                 <CardInnerFooter
@@ -69,7 +85,7 @@ const CardImageContainer: FC<CardImageContainerProps> = ({
                     cardOptions={cardOptions}
                     forceName={forceName}
                     overlayText={overlayText}
-                    imgUrl={imgUrl}
+                    imgUrl={activeUrl}
                     progressBar={indicator.getProgressBar()}
                 />
             )}
