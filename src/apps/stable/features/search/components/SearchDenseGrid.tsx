@@ -108,9 +108,9 @@ const SearchDenseGrid: FC<SearchDenseGridProps> = ({ sections, showPeople }) => 
                 if (itemsRendered >= renderCount) return null;
 
                 const isPeopleSection = PEOPLE_SECTION_TITLES.has(section.title);
-                const cardOptions = isPeopleSection
-                    ? PEOPLE_CARD_OPTIONS
-                    : { ...MEDIA_CARD_OPTIONS, ...section.cardOptions };
+                const cardOptions = isPeopleSection ?
+                    PEOPLE_CARD_OPTIONS :
+                    { ...MEDIA_CARD_OPTIONS, ...section.cardOptions };
 
                 const remainingSlots = renderCount - itemsRendered;
                 const visibleItems = section.items.slice(0, remainingSlots);
